@@ -69,7 +69,7 @@ export function ApiKeyModal({ isOpen, onClose }: ApiKeyModalProps) {
               </p>
 
               <a
-                href="https://aistudio.google.com/apikey"
+                href="https://aistudio.google.com/api-keys"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-gold hover:text-gold-dark transition-colors mb-6"
