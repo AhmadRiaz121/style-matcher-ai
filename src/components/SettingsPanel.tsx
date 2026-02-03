@@ -1,0 +1,172 @@
+import { motion } from 'framer-motion';
+import { Key, User, Trash2, CheckCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useGeminiApi } from '@/hooks/useGeminiApi';
+import { useWardrobe } from '@/hooks/useWardrobe';
+
+interface SettingsPanelProps {
+  onOpenApiSettings: () => void;
+}
+
+export function SettingsPanel({ onOpenApiSettings }: SettingsPanelProps) {
+  const { hasApiKey, setApiKey } = useGeminiApi();
+  const { profile, setProfile, clothes } = useWardrobe();
+
+  const handleClearApiKey = () => {
+    if (confirm('Are you sure you want to remove your API key?')) {
+      setApiKey('');
+    }
+  };
+
+  const handleClearWardrobe = () => {
+    if (confirm('Are you sure you want to clear your entire wardrobe? This cannot be undone.')) {
+      localStorage.removeItem('wardrobe-clothes');
+      localStorage.removeItem('wardrobe-history');
+      localStorage.removeItem('wardrobe-events');
+      localStorage.removeItem('wardrobe-profile');
+      window.location.reload();
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto space-y-8">
+      <div className="text-center">
+        <h2 className="font-display text-3xl font-semibold mb-2">Settings</h2>
+        <p className="text-muted-foreground">Manage your account and preferences</p>
+      </div>
+
+      {/* API Key Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="p-6 rounded-2xl bg-card border border-border shadow-soft"
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-gradient-gold flex items-center justify-center">
+            <Key className="w-5 h-5 text-charcoal" />
+          </div>
+          <div>
+            <h3 className="font-display text-lg font-medium">Gemini API Key</h3>
+            <p className="text-sm text-muted-foreground">Required for AI features</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          {hasApiKey ? (
+            <>
+              <div className="flex items-center gap-2 text-accent">
+                <CheckCircle className="w-5 h-5" />
+                <span className="text-sm font-medium">API Key Connected</span>
+              </div>
+              <div className="flex gap-2 ml-auto">
+                <Button variant="outline" size="sm" onClick={onOpenApiSettings}>
+                  Update Key
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleClearApiKey} className="text-destructive hover:text-destructive">
+                  Remove
+                </Button>
+              </div>
+            </>
+          ) : (
+            <>
+              <span className="text-sm text-muted-foreground">No API key configured</span>
+              <Button variant="gold" size="sm" onClick={onOpenApiSettings} className="ml-auto">
+                Add API Key
+              </Button>
+            </>
+          )}
+        </div>
+      </motion.div>
+
+      {/* Profile Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="p-6 rounded-2xl bg-card border border-border shadow-soft"
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
+            <User className="w-5 h-5" />
+          </div>
+          <div>
+            <h3 className="font-display text-lg font-medium">Profile</h3>
+            <p className="text-sm text-muted-foreground">Your personal information</p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <Label htmlFor="profileName">Name (optional)</Label>
+            <Input
+              id="profileName"
+              value={profile.name || ''}
+              onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+              placeholder="Your name"
+              className="mt-1.5"
+            />
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Stats Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="p-6 rounded-2xl bg-card border border-border shadow-soft"
+      >
+        <h3 className="font-display text-lg font-medium mb-4">Your Wardrobe Stats</h3>
+        <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="p-4 rounded-xl bg-muted">
+            <p className="text-2xl font-semibold text-gold">{clothes.length}</p>
+            <p className="text-sm text-muted-foreground">Total Items</p>
+          </div>
+          <div className="p-4 rounded-xl bg-muted">
+            <p className="text-2xl font-semibold text-gold">
+              {new Set(clothes.map(c => c.category)).size}
+            </p>
+            <p className="text-sm text-muted-foreground">Categories</p>
+          </div>
+          <div className="p-4 rounded-xl bg-muted">
+            <p className="text-2xl font-semibold text-gold">
+              {clothes.reduce((sum, c) => sum + c.wearCount, 0)}
+            </p>
+            <p className="text-sm text-muted-foreground">Total Wears</p>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Danger Zone */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="p-6 rounded-2xl border border-destructive/30 bg-destructive/5"
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-destructive/20 flex items-center justify-center">
+            <Trash2 className="w-5 h-5 text-destructive" />
+          </div>
+          <div>
+            <h3 className="font-display text-lg font-medium text-destructive">Danger Zone</h3>
+            <p className="text-sm text-muted-foreground">Irreversible actions</p>
+          </div>
+        </div>
+
+        <Button
+          variant="destructive"
+          onClick={handleClearWardrobe}
+          className="w-full"
+        >
+          Clear All Data
+        </Button>
+        <p className="text-xs text-muted-foreground text-center mt-2">
+          This will permanently delete your wardrobe, history, and events.
+        </p>
+      </motion.div>
+    </div>
+  );
+}
