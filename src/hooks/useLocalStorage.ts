@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((prev: T) => T)) => void] {
-  const [storedValue, setStoredValue] = useState<T>(() => {
+  // Read initial value synchronously
+  const getStoredValue = (): T => {
     if (typeof window === 'undefined') {
       return initialValue;
     }
-
     try {
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
@@ -13,26 +13,38 @@ export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T 
       console.warn(`Error reading localStorage key "${key}":`, error);
       return initialValue;
     }
-  });
+  };
 
-  const setValue = useCallback((value: T | ((prev: T) => T)) => {
+  const [storedValue, setStoredValue] = useState<T>(getStoredValue);
+  const isFirstRender = useRef(true);
+
+  // Update localStorage when value changes (skip first render)
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    
     try {
-      setStoredValue(prev => {
-        const valueToStore = value instanceof Function ? value(prev) : value;
-        if (typeof window !== 'undefined') {
-          window.localStorage.setItem(key, JSON.stringify(valueToStore));
-        }
-        return valueToStore;
-      });
+      if (typeof window !== 'undefined') {
+        window.localStorage.setItem(key, JSON.stringify(storedValue));
+      }
     } catch (error) {
       console.warn(`Error setting localStorage key "${key}":`, error);
     }
-  }, [key]);
+  }, [key, storedValue]);
 
-  // Sync with other tabs
+  const setValue = useCallback((value: T | ((prev: T) => T)) => {
+    setStoredValue(prev => {
+      const valueToStore = value instanceof Function ? value(prev) : value;
+      return valueToStore;
+    });
+  }, []);
+
+  // Listen for storage changes from other tabs
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === key && e.newValue) {
+      if (e.key === key && e.newValue !== null) {
         try {
           setStoredValue(JSON.parse(e.newValue));
         } catch {
