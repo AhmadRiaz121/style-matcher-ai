@@ -1,18 +1,11 @@
 import { useState, useCallback } from 'react';
+import { useLocalStorage } from './useLocalStorage';
 
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent';
 
-// Session-only API key storage (shared across components)
-let sessionApiKey = '';
-
 export function useGeminiApi() {
-  const [apiKey, setApiKeyState] = useState<string>(sessionApiKey);
+  const [apiKey, setApiKey] = useLocalStorage<string>('gemini-api-key', '');
   const [isLoading, setIsLoading] = useState(false);
-
-  const setApiKey = useCallback((key: string) => {
-    sessionApiKey = key;
-    setApiKeyState(key);
-  }, []);
   const [error, setError] = useState<string | null>(null);
 
   const generateTryOn = useCallback(async (
