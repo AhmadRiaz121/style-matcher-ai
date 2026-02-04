@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useGeminiApi } from '@/hooks/useGeminiApi';
 import { useWardrobe } from '@/hooks/useWardrobe';
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
   id: string;
@@ -274,7 +275,13 @@ User's question: ${userMessage}`
                       : 'bg-muted'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  {message.role === 'assistant' ? (
+                    <div className="text-sm prose prose-sm dark:prose-invert max-w-none prose-headings:font-semibold prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground">
+                      <ReactMarkdown>{message.content}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  )}
                   
                   {/* Show quick shop buttons for assistant messages */}
                   {message.role === 'assistant' && (
