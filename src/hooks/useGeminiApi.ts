@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useLocalStorage } from './useLocalStorage';
 
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 export function useGeminiApi() {
   const [apiKey, setApiKey] = useLocalStorage<string>('gemini-api-key', '');
