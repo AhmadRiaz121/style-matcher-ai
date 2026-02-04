@@ -47,9 +47,7 @@ export function ShoppingAssistant({ onOpenApiSettings }: ShoppingAssistantProps)
       ? `User's wardrobe contains: ${clothes.map(c => `${c.name} (${c.category})`).join(', ')}`
       : 'User has not added any items to their wardrobe yet.';
 
-    console.log('Calling Gemini API with key:', apiKey ? `${apiKey.substring(0, 10)}...` : 'NO KEY');
-
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -87,16 +85,11 @@ User's question: ${userMessage}`
       }),
     });
 
-    console.log('Gemini API response status:', response.status);
-
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Gemini API error:', errorData);
-      throw new Error(errorData.error?.message || `API error: ${response.status}`);
+      throw new Error('Failed to get response');
     }
 
     const data = await response.json();
-    console.log('Gemini API response data:', data);
     return data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not generate a response.';
   };
 
