@@ -10,12 +10,13 @@ import { AddEventModal } from '@/components/AddEventModal';
 import { EventCard } from '@/components/EventCard';
 import { TryOnPanel } from '@/components/TryOnPanel';
 import { SettingsPanel } from '@/components/SettingsPanel';
+import { ShoppingAssistant } from '@/components/ShoppingAssistant';
 import { ApiKeyModal } from '@/components/ApiKeyModal';
 import { Button } from '@/components/ui/button';
 import { useWardrobe } from '@/hooks/useWardrobe';
 import { ClothingCategory } from '@/types/wardrobe';
 
-type TabId = 'wardrobe' | 'tryon' | 'events' | 'settings';
+type TabId = 'wardrobe' | 'tryon' | 'shop' | 'events' | 'settings';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState<TabId>('wardrobe');
@@ -113,6 +114,18 @@ const Index = () => {
               transition={{ duration: 0.3 }}
             >
               <TryOnPanel onOpenApiSettings={() => setShowApiKeyModal(true)} />
+            </motion.div>
+          )}
+
+          {activeTab === 'shop' && (
+            <motion.div
+              key="shop"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ShoppingAssistant onOpenApiSettings={() => setShowApiKeyModal(true)} />
             </motion.div>
           )}
 
