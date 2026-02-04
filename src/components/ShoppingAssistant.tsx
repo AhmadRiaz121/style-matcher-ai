@@ -47,7 +47,7 @@ export function ShoppingAssistant({ onOpenApiSettings }: ShoppingAssistantProps)
       ? `User's wardrobe contains: ${clothes.map(c => `${c.name} (${c.category})`).join(', ')}`
       : 'User has not added any items to their wardrobe yet.';
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
