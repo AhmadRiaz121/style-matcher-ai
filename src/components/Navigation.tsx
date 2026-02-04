@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
-import { Shirt, Wand2, Calendar, Settings } from 'lucide-react';
+import { Shirt, Wand2, Calendar, Settings, ShoppingBag } from 'lucide-react';
 
-type TabId = 'wardrobe' | 'tryon' | 'events' | 'settings';
+type TabId = 'wardrobe' | 'tryon' | 'shop' | 'events' | 'settings';
 
 interface NavigationProps {
   activeTab: TabId;
@@ -11,6 +11,7 @@ interface NavigationProps {
 const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: 'wardrobe', label: 'Wardrobe', icon: <Shirt className="w-5 h-5" /> },
   { id: 'tryon', label: 'Try On', icon: <Wand2 className="w-5 h-5" /> },
+  { id: 'shop', label: 'Shop', icon: <ShoppingBag className="w-5 h-5" /> },
   { id: 'events', label: 'Events', icon: <Calendar className="w-5 h-5" /> },
   { id: 'settings', label: 'Settings', icon: <Settings className="w-5 h-5" /> },
 ];
