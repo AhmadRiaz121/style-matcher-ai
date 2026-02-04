@@ -25,10 +25,11 @@ export function useGeminiApi() {
       const profileBase64 = await imageToBase64(profileImage);
       const clothingBase64 = await Promise.all(clothingImages.map(imageToBase64));
 
-      const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+      const response = await fetch(GEMINI_API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey,
         },
         body: JSON.stringify({
           contents: [{
