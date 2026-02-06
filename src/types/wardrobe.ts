@@ -32,6 +32,7 @@ export interface Event {
   date: Date;
   type: 'casual' | 'formal' | 'business' | 'party' | 'outdoor' | 'other';
   outfitId?: string;
+  outfitIds?: string[];
 }
 
 export interface UserProfile {
