@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ImageUpload } from './ImageUpload';
 import { ClothingCategory } from '@/types/wardrobe';
+import { useGeminiApi } from '@/hooks/useGeminiApi';
+import { useToast } from '@/hooks/use-toast';
 
 interface AddClothingModalProps {
   isOpen: boolean;
@@ -36,6 +38,95 @@ export function AddClothingModal({ isOpen, onClose, onAdd }: AddClothingModalPro
   const [imageUrl, setImageUrl] = useState('');
   const [color, setColor] = useState('');
   const [cooldownDays, setCooldownDays] = useState('5');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const { apiKey, hasApiKey } = useGeminiApi();
+  const { toast } = useToast();
+
+  // Analyze image with AI to auto-categorize
+  const analyzeImage = async (imageData: string) => {
+    if (!hasApiKey || !apiKey) {
+      return;
+    }
+
+    setIsAnalyzing(true);
+    try {
+      const base64Image = imageData.split(',')[1] || imageData;
+
+      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey,
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              {
+                text: `Analyze this clothing item image and provide the following information in JSON format:
+{
+  "category": "one of: tops, bottoms, suits, dresses, outerwear, shoes, accessories",
+  "name": "a descriptive name for this item",
+  "color": "primary color of the item"
+}
+
+Be precise and only return valid JSON.`
+              },
+              {
+                inline_data: {
+                  mime_type: 'image/jpeg',
+                  data: base64Image
+                }
+              }
+            ]
+          }],
+          generationConfig: {
+            temperature: 0.3,
+            topK: 20,
+            topP: 0.8,
+            maxOutputTokens: 256,
+          }
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+        // Extract JSON from response
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const analysis = JSON.parse(jsonMatch[0]);
+
+          if (analysis.category && categories.some(c => c.value === analysis.category)) {
+            setCategory(analysis.category as ClothingCategory);
+          }
+          if (analysis.name) {
+            setName(analysis.name);
+          }
+          if (analysis.color) {
+            setColor(analysis.color);
+          }
+
+          toast({
+            title: "✨ AI Analysis Complete",
+            description: "Item categorized automatically!",
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Image analysis error:', error);
+      // Silently fail - user can still manually categorize
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  // Auto-analyze when image is uploaded
+  useEffect(() => {
+    if (imageUrl && hasApiKey) {
+      analyzeImage(imageUrl);
+    }
+  }, [imageUrl]);
 
   const handleSubmit = () => {
     if (!name.trim() || !imageUrl) return;
@@ -109,8 +200,22 @@ export function AddClothingModal({ isOpen, onClose, onAdd }: AddClothingModalPro
                   </div>
 
                   <div>
-                    <Label htmlFor="category">Category</Label>
-                    <Select value={category} onValueChange={(v) => setCategory(v as ClothingCategory)}>
+                    <Label htmlFor="category" className="flex items-center gap-2">
+                      Category
+                      {isAnalyzing && (
+                        <span className="flex items-center gap-1 text-xs text-gold">
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          AI analyzing...
+                        </span>
+                      )}
+                      {!isAnalyzing && imageUrl && hasApiKey && (
+                        <span className="flex items-center gap-1 text-xs text-gold">
+                          <Sparkles className="w-3 h-3" />
+                          AI suggested
+                        </span>
+                      )}
+                    </Label>
+                    <Select value={category} onValueChange={(v) => setCategory(v as ClothingCategory)} disabled={isAnalyzing}>
                       <SelectTrigger className="mt-1.5">
                         <SelectValue />
                       </SelectTrigger>
