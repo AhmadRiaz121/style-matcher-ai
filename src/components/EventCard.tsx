@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
-import { Calendar, Clock, Trash2, Shirt } from 'lucide-react';
-import { Event } from '@/types/wardrobe';
+import { Calendar, Clock, Trash2, Shirt, Pencil } from 'lucide-react';
+import { Event, ClothingItem } from '@/types/wardrobe';
 import { Button } from '@/components/ui/button';
 import { format, formatDistanceToNow, isPast, isToday } from 'date-fns';
 
@@ -8,6 +8,8 @@ interface EventCardProps {
   event: Event;
   onDelete?: (id: string) => void;
   onSelectOutfit?: (event: Event) => void;
+  onEdit?: (event: Event) => void;
+  selectedOutfit?: ClothingItem;
 }
 
 const eventTypeColors: Record<Event['type'], string> = {
@@ -19,7 +21,7 @@ const eventTypeColors: Record<Event['type'], string> = {
   other: 'bg-gold/20 text-gold-dark',
 };
 
-export function EventCard({ event, onDelete, onSelectOutfit }: EventCardProps) {
+export function EventCard({ event, onDelete, onSelectOutfit, onEdit, selectedOutfit }: EventCardProps) {
   const eventDate = new Date(event.date);
   const isPastEvent = isPast(eventDate) && !isToday(eventDate);
   const isTodayEvent = isToday(eventDate);
@@ -39,6 +41,19 @@ export function EventCard({ event, onDelete, onSelectOutfit }: EventCardProps) {
       }`}
     >
       <div className="flex items-start justify-between gap-4">
+        {/* Outfit thumbnail */}
+        {selectedOutfit && (
+          <div className="flex-shrink-0">
+            <div className="w-16 h-20 rounded-lg overflow-hidden border border-border shadow-soft">
+              <img
+                src={selectedOutfit.imageUrl}
+                alt={selectedOutfit.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        )}
+        
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${eventTypeColors[event.type]}`}>
@@ -81,16 +96,28 @@ export function EventCard({ event, onDelete, onSelectOutfit }: EventCardProps) {
               {event.outfitId ? 'Change Outfit' : 'Plan Outfit'}
             </Button>
           )}
-          {onDelete && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => onDelete(event.id)}
-              className="text-muted-foreground hover:text-destructive"
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          )}
+          <div className="flex gap-1">
+            {onEdit && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => onEdit(event)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <Pencil className="w-4 h-4" />
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => onDelete(event.id)}
+                className="text-muted-foreground hover:text-destructive"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </motion.div>
