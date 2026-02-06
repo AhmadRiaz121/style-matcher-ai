@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, ExternalLink, Sparkles, ShoppingBag, Key } from 'lucide-react';
+import { Send, Bot, User, ExternalLink, Sparkles, ShoppingBag, Key, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useGeminiApi } from '@/hooks/useGeminiApi';
 import { useWardrobe } from '@/hooks/useWardrobe';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import ReactMarkdown from 'react-markdown';
 
 interface Message {
@@ -28,10 +29,11 @@ interface ShoppingAssistantProps {
 }
 
 export function ShoppingAssistant({ onOpenApiSettings }: ShoppingAssistantProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useLocalStorage<Message[]>('shopping-chat-history', []);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const prevMessageCountRef = useRef(0);
   const { hasApiKey, apiKey } = useGeminiApi();
   const { clothes } = useWardrobe();
 
@@ -39,14 +41,24 @@ export function ShoppingAssistant({ onOpenApiSettings }: ShoppingAssistantProps)
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // Only auto-scroll when new messages are added, not on manual scroll
   useEffect(() => {
-    scrollToBottom();
+    if (messages.length > prevMessageCountRef.current) {
+      scrollToBottom();
+      prevMessageCountRef.current = messages.length;
+    }
   }, [messages]);
 
   const generateResponse = async (userMessage: string): Promise<string> => {
     const wardrobeSummary = clothes.length > 0
-      ? `User's wardrobe contains: ${clothes.map(c => `${c.name} (${c.category})`).join(', ')}`
+      ? `User's wardrobe contains ${clothes.length} items:\n${clothes.map(c => `- ${c.name} (${c.category}, ${c.color || 'color not specified'})`).join('\n')}`
       : 'User has not added any items to their wardrobe yet.';
+
+    // Build conversation history for context
+    const conversationHistory = messages.slice(-6).map(msg => ({
+      role: msg.role,
+      content: msg.content
+    }));
 
     console.log('Calling Gemini API with key:', apiKey ? `${apiKey.substring(0, 10)}...` : 'NO KEY');
 
@@ -57,14 +69,25 @@ export function ShoppingAssistant({ onOpenApiSettings }: ShoppingAssistantProps)
         'x-goog-api-key': apiKey,
       },
       body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: `You are StyleAI Shopping Assistant, a fashion-savvy AI that helps users find trendy clothing and accessories. You specialize in:
+        contents: [
+          // Include conversation history
+          ...conversationHistory.map(msg => ({
+            role: msg.role === 'user' ? 'user' : 'model',
+            parts: [{ text: msg.content }]
+          })),
+          // Current message with full context
+          {
+            role: 'user',
+            parts: [{
+              text: `You are StyleAI Shopping Assistant, a fashion-savvy AI that helps users find trendy clothing and accessories. You specialize in:
             
 1. Recommending current fashion trends
 2. Suggesting products that match user's style and existing wardrobe
 3. Providing search terms for popular shopping sites (Amazon, Daraz.pk, AliExpress, eBay, ASOS, Zara)
 4. Offering styling tips and outfit combinations
+5. Analyzing websites to find the best matching products
+
+IMPORTANT: You have access to the user's previous chat history above. Reference it when relevant to provide personalized recommendations.
 
 ${wardrobeSummary}
 
@@ -73,13 +96,17 @@ When suggesting products, always:
 - Mention price ranges when relevant
 - Consider the user's existing wardrobe for complementary pieces
 - Suggest trending items and seasonal must-haves
+- Reference previous conversations when the user asks follow-up questions
 - Be enthusiastic and helpful!
+
+If the user provides a website URL, analyze it and suggest the best items that would fit their wardrobe and style.
 
 Format your responses with clear sections and use emojis to make it engaging.
 
 User's question: ${userMessage}`
-          }]
-        }],
+            }]
+          }
+        ],
         generationConfig: {
           temperature: 0.8,
           topK: 40,
@@ -118,7 +145,7 @@ User's question: ${userMessage}`
 
     try {
       const response = await generateResponse(userMessage.content);
-      
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -154,7 +181,7 @@ User's question: ${userMessage}`
       /search for[:\s]+([^,.\n]+)/gi,
       /try[:\s]+([^,.\n]+)/gi,
     ];
-    
+
     const terms: string[] = [];
     patterns.forEach(pattern => {
       let match;
@@ -164,7 +191,7 @@ User's question: ${userMessage}`
         }
       }
     });
-    
+
     return [...new Set(terms)].slice(0, 3);
   };
 
@@ -203,7 +230,20 @@ User's question: ${userMessage}`
   return (
     <div className="max-w-4xl mx-auto">
       <div className="text-center mb-6">
-        <h2 className="font-display text-3xl font-semibold mb-2">Shopping Assistant</h2>
+        <div className="flex items-center justify-center gap-4 mb-2">
+          <h2 className="font-display text-3xl font-semibold">Shopping Assistant</h2>
+          {messages.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setMessages([])}
+              className="text-xs"
+            >
+              <Trash2 className="w-3 h-3 mr-1" />
+              Clear History
+            </Button>
+          )}
+        </div>
         <p className="text-muted-foreground">
           Ask me about fashion trends, product recommendations, and styling tips!
         </p>
@@ -269,11 +309,10 @@ User's question: ${userMessage}`
                   </div>
                 )}
                 <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                    message.role === 'user'
-                      ? 'bg-gold text-charcoal'
-                      : 'bg-muted'
-                  }`}
+                  className={`max-w-[80%] rounded-2xl px-4 py-3 ${message.role === 'user'
+                    ? 'bg-gold text-charcoal'
+                    : 'bg-muted'
+                    }`}
                 >
                   {message.role === 'assistant' ? (
                     <div className="text-sm prose prose-sm dark:prose-invert max-w-none prose-headings:font-semibold prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground">
@@ -282,7 +321,7 @@ User's question: ${userMessage}`
                   ) : (
                     <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                   )}
-                  
+
                   {/* Show quick shop buttons for assistant messages */}
                   {message.role === 'assistant' && (
                     <div className="mt-3 flex flex-wrap gap-1.5">
