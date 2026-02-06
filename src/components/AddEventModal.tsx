@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, CalendarPlus, Sparkles, Loader2 } from 'lucide-react';
+import { X, Plus, CalendarPlus, Sparkles, Loader2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -30,6 +30,7 @@ export function AddEventModal({ isOpen, onClose, onAdd }: AddEventModalProps) {
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [type, setType] = useState<Event['type']>('casual');
   const [suggestions, setSuggestions] = useState<string>('');
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const { apiKey, hasApiKey } = useGeminiApi();
   const { clothes } = useWardrobe();
@@ -117,6 +118,14 @@ Return ONLY valid JSON, no other text.`
     }
   }, [type, name]);
 
+  const toggleSelection = (clothingId: string) => {
+    setSelectedItems(prev =>
+      prev.includes(clothingId)
+        ? prev.filter(id => id !== clothingId)
+        : [...prev, clothingId]
+    );
+  };
+
   const handleSubmit = () => {
     if (!name.trim() || !date) return;
 
@@ -124,12 +133,14 @@ Return ONLY valid JSON, no other text.`
       name: name.trim(),
       date: new Date(date),
       type,
+      outfitIds: selectedItems,
     });
 
     // Reset form
     setName('');
     setDate(format(new Date(), 'yyyy-MM-dd'));
     setType('casual');
+    setSelectedItems([]);
     onClose();
   };
 
@@ -151,7 +162,7 @@ Return ONLY valid JSON, no other text.`
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
           >
-            <div className="bg-card rounded-2xl shadow-elevated p-6 border border-border w-full max-w-md">
+            <div className="bg-card rounded-2xl shadow-elevated p-6 border border-border w-full max-w-md max-h-[85vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-gradient-gold flex items-center justify-center">
@@ -236,15 +247,28 @@ Return ONLY valid JSON, no other text.`
                                   const item = clothes[itemIdx];
                                   if (!item) return null;
                                   return (
-                                    <div key={itemIdx} className="flex-shrink-0 w-20">
-                                      <div className="aspect-[3/4] rounded-lg overflow-hidden bg-muted mb-1">
+                                    <div
+                                      key={itemIdx}
+                                      className="flex-shrink-0 w-20 cursor-pointer group relative"
+                                      onClick={() => toggleSelection(item.id)}
+                                    >
+                                      <div className={`aspect-[3/4] rounded-lg overflow-hidden bg-muted mb-1 border-2 transition-all ${selectedItems.includes(item.id)
+                                          ? 'border-gold shadow-md'
+                                          : 'border-transparent group-hover:border-gold/50'
+                                        }`}>
                                         <img
                                           src={item.imageUrl}
                                           alt={item.name}
                                           className="w-full h-full object-cover"
                                         />
+                                        {selectedItems.includes(item.id) && (
+                                          <div className="absolute top-1 right-1 bg-gold rounded-full p-0.5">
+                                            <Check className="w-3 h-3 text-white" />
+                                          </div>
+                                        )}
                                       </div>
-                                      <p className="text-xs text-center text-muted-foreground truncate">
+                                      <p className={`text-xs text-center truncate transition-colors ${selectedItems.includes(item.id) ? 'text-gold font-medium' : 'text-muted-foreground'
+                                        }`}>
                                         {item.name}
                                       </p>
                                     </div>
