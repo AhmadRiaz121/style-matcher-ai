@@ -16,7 +16,7 @@ import { ShoppingAssistant } from '@/components/ShoppingAssistant';
 import { ApiKeyModal } from '@/components/ApiKeyModal';
 import { Button } from '@/components/ui/button';
 import { useWardrobe } from '@/hooks/useWardrobe';
-import { ClothingCategory, Event } from '@/types/wardrobe';
+import { ClothingCategory, Event, ClothingItem } from '@/types/wardrobe';
 
 type TabId = 'wardrobe' | 'tryon' | 'shop' | 'events' | 'settings';
 
@@ -207,7 +207,14 @@ const Index = () => {
                       onDelete={removeEvent}
                       onSelectOutfit={handleSelectOutfit}
                       onEdit={handleEditEvent}
-                      selectedOutfit={getClothingById(event.outfitId)}
+                      selectedOutfits={
+                        [
+                          ...(event.outfitIds || []),
+                          ...(event.outfitId ? [event.outfitId] : [])
+                        ]
+                          .map(id => clothes.find(c => c.id === id))
+                          .filter((c): c is ClothingItem => !!c)
+                      }
                     />
                   ))}
                 </div>
