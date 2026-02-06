@@ -121,24 +121,12 @@ Be precise and only return valid JSON.`
     }
   };
 
-  // Reset form when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      setName('');
-      setCategory('tops');
-      setImageUrl('');
-      setColor('');
-      setCooldownDays('5');
-      setIsAnalyzing(false);
-    }
-  }, [isOpen]);
-
   // Auto-analyze when image is uploaded
   useEffect(() => {
-    if (imageUrl && hasApiKey && isOpen) {
+    if (imageUrl && hasApiKey) {
       analyzeImage(imageUrl);
     }
-  }, [imageUrl, hasApiKey, isOpen]);
+  }, [imageUrl]);
 
   const handleSubmit = () => {
     if (!name.trim() || !imageUrl) return;
@@ -151,6 +139,12 @@ Be precise and only return valid JSON.`
       cooldownDays: parseInt(cooldownDays) || 5,
     });
 
+    // Reset form
+    setName('');
+    setCategory('tops');
+    setImageUrl('');
+    setColor('');
+    setCooldownDays('5');
     onClose();
   };
 
