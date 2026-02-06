@@ -7,6 +7,8 @@ import { ClothingCard } from '@/components/ClothingCard';
 import { CategoryFilter } from '@/components/CategoryFilter';
 import { AddClothingModal } from '@/components/AddClothingModal';
 import { AddEventModal } from '@/components/AddEventModal';
+import { EditEventModal } from '@/components/EditEventModal';
+import { SelectOutfitModal } from '@/components/SelectOutfitModal';
 import { EventCard } from '@/components/EventCard';
 import { TryOnPanel } from '@/components/TryOnPanel';
 import { SettingsPanel } from '@/components/SettingsPanel';
@@ -14,7 +16,7 @@ import { ShoppingAssistant } from '@/components/ShoppingAssistant';
 import { ApiKeyModal } from '@/components/ApiKeyModal';
 import { Button } from '@/components/ui/button';
 import { useWardrobe } from '@/hooks/useWardrobe';
-import { ClothingCategory } from '@/types/wardrobe';
+import { ClothingCategory, Event } from '@/types/wardrobe';
 
 type TabId = 'wardrobe' | 'tryon' | 'shop' | 'events' | 'settings';
 
@@ -24,6 +26,10 @@ const Index = () => {
   const [showAddClothing, setShowAddClothing] = useState(false);
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+  const [showSelectOutfit, setShowSelectOutfit] = useState(false);
+  const [showEditEvent, setShowEditEvent] = useState(false);
+  const [selectedEventForOutfit, setSelectedEventForOutfit] = useState<Event | null>(null);
+  const [selectedEventForEdit, setSelectedEventForEdit] = useState<Event | null>(null);
 
   const {
     clothes,
@@ -33,7 +39,31 @@ const Index = () => {
     markAsWorn,
     addEvent,
     removeEvent,
+    updateEvent,
   } = useWardrobe();
+
+  const handleSelectOutfit = (event: Event) => {
+    setSelectedEventForOutfit(event);
+    setShowSelectOutfit(true);
+  };
+
+  const handleSaveOutfit = (eventId: string, clothingId: string | undefined) => {
+    updateEvent(eventId, { outfitId: clothingId });
+  };
+
+  const handleEditEvent = (event: Event) => {
+    setSelectedEventForEdit(event);
+    setShowEditEvent(true);
+  };
+
+  const handleSaveEventEdit = (id: string, updates: Partial<Event>) => {
+    updateEvent(id, updates);
+  };
+
+  const getClothingById = (id: string | undefined) => {
+    if (!id) return undefined;
+    return clothes.find(c => c.id === id);
+  };
 
   const filteredClothes = selectedCategory === 'all'
     ? clothes
@@ -175,6 +205,9 @@ const Index = () => {
                       key={event.id}
                       event={event}
                       onDelete={removeEvent}
+                      onSelectOutfit={handleSelectOutfit}
+                      onEdit={handleEditEvent}
+                      selectedOutfit={getClothingById(event.outfitId)}
                     />
                   ))}
                 </div>
@@ -212,6 +245,27 @@ const Index = () => {
       <ApiKeyModal
         isOpen={showApiKeyModal}
         onClose={() => setShowApiKeyModal(false)}
+      />
+
+      <SelectOutfitModal
+        isOpen={showSelectOutfit}
+        onClose={() => {
+          setShowSelectOutfit(false);
+          setSelectedEventForOutfit(null);
+        }}
+        event={selectedEventForOutfit}
+        clothes={clothes}
+        onSelectOutfit={handleSaveOutfit}
+      />
+
+      <EditEventModal
+        isOpen={showEditEvent}
+        onClose={() => {
+          setShowEditEvent(false);
+          setSelectedEventForEdit(null);
+        }}
+        event={selectedEventForEdit}
+        onSave={handleSaveEventEdit}
       />
     </div>
   );
