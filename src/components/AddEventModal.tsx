@@ -105,9 +105,20 @@ Return ONLY valid JSON, no other text.`
     }
   };
 
+  // Reset form when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setName('');
+      setDate(format(new Date(), 'yyyy-MM-dd'));
+      setType('casual');
+      setSuggestions('');
+      setIsLoadingSuggestions(false);
+    }
+  }, [isOpen]);
+
   // Generate suggestions when event type or name changes
   useEffect(() => {
-    if (name && type && hasApiKey && clothes.length > 0) {
+    if (isOpen && name && type && hasApiKey && clothes.length > 0) {
       const debounceTimer = setTimeout(() => {
         generateSuggestions(type, name);
       }, 500);
@@ -115,7 +126,7 @@ Return ONLY valid JSON, no other text.`
     } else {
       setSuggestions('');
     }
-  }, [type, name]);
+  }, [type, name, hasApiKey, clothes.length, isOpen]);
 
   const handleSubmit = () => {
     if (!name.trim() || !date) return;
@@ -126,10 +137,6 @@ Return ONLY valid JSON, no other text.`
       type,
     });
 
-    // Reset form
-    setName('');
-    setDate(format(new Date(), 'yyyy-MM-dd'));
-    setType('casual');
     onClose();
   };
 
