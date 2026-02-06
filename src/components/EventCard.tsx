@@ -9,7 +9,7 @@ interface EventCardProps {
   onDelete?: (id: string) => void;
   onSelectOutfit?: (event: Event) => void;
   onEdit?: (event: Event) => void;
-  selectedOutfit?: ClothingItem;
+  selectedOutfits?: ClothingItem[];
 }
 
 const eventTypeColors: Record<Event['type'], string> = {
@@ -21,7 +21,7 @@ const eventTypeColors: Record<Event['type'], string> = {
   other: 'bg-gold/20 text-gold-dark',
 };
 
-export function EventCard({ event, onDelete, onSelectOutfit, onEdit, selectedOutfit }: EventCardProps) {
+export function EventCard({ event, onDelete, onSelectOutfit, onEdit, selectedOutfits }: EventCardProps) {
   const eventDate = new Date(event.date);
   const isPastEvent = isPast(eventDate) && !isToday(eventDate);
   const isTodayEvent = isToday(eventDate);
@@ -32,28 +32,33 @@ export function EventCard({ event, onDelete, onSelectOutfit, onEdit, selectedOut
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.9 }}
-      className={`p-4 rounded-xl border transition-all ${
-        isPastEvent 
-          ? 'bg-muted/50 border-border opacity-60' 
-          : isTodayEvent
+      className={`p-4 rounded-xl border transition-all ${isPastEvent
+        ? 'bg-muted/50 border-border opacity-60'
+        : isTodayEvent
           ? 'bg-gold/5 border-gold/30 shadow-gold'
           : 'bg-card border-border shadow-soft hover:shadow-card'
-      }`}
+        }`}
     >
       <div className="flex items-start justify-between gap-4">
         {/* Outfit thumbnail */}
-        {selectedOutfit && (
-          <div className="flex-shrink-0">
-            <div className="w-16 h-20 rounded-lg overflow-hidden border border-border shadow-soft">
-              <img
-                src={selectedOutfit.imageUrl}
-                alt={selectedOutfit.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
+        {selectedOutfits && selectedOutfits.length > 0 && (
+          <div className="flex-shrink-0 flex -space-x-4 overflow-hidden py-1 pl-1">
+            {selectedOutfits.map((item, index) => (
+              <div
+                key={item.id}
+                className="w-16 h-20 rounded-lg overflow-hidden border border-border shadow-soft relative z-[1]"
+                style={{ zIndex: index }}
+              >
+                <img
+                  src={item.imageUrl}
+                  alt={item.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ))}
           </div>
         )}
-        
+
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${eventTypeColors[event.type]}`}>
@@ -76,8 +81,8 @@ export function EventCard({ event, onDelete, onSelectOutfit, onEdit, selectedOut
             <div className="flex items-center gap-1.5">
               <Clock className="w-4 h-4" />
               <span>
-                {isPastEvent 
-                  ? 'Passed' 
+                {isPastEvent
+                  ? 'Passed'
                   : formatDistanceToNow(eventDate, { addSuffix: true })}
               </span>
             </div>
@@ -93,7 +98,7 @@ export function EventCard({ event, onDelete, onSelectOutfit, onEdit, selectedOut
               className="whitespace-nowrap"
             >
               <Shirt className="w-4 h-4 mr-1" />
-              {event.outfitId ? 'Change Outfit' : 'Plan Outfit'}
+              {(event.outfitId || (event.outfitIds && event.outfitIds.length > 0)) ? 'Change Outfit' : 'Plan Outfit'}
             </Button>
           )}
           <div className="flex gap-1">
