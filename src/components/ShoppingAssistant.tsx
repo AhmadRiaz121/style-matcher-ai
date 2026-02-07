@@ -7,6 +7,7 @@ import { useGeminiApi } from '@/hooks/useGeminiApi';
 import { useWardrobe } from '@/hooks/useWardrobe';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useToast } from '@/hooks/use-toast';
+import { mapApiErrorToUserMessage } from '@/lib/apiErrorHandler';
 import ReactMarkdown from 'react-markdown';
 import { z } from 'zod';
 
@@ -125,8 +126,10 @@ User's question: ${userMessage}`
     });
 
     if (!response.ok) {
+      // Log detailed error for debugging but throw generic message
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error?.message || `API error: ${response.status}`);
+      console.error('Gemini API error details:', errorData);
+      throw { status: response.status, message: mapApiErrorToUserMessage(response.status) };
     }
 
     const data = await response.json();
@@ -168,12 +171,19 @@ User's question: ${userMessage}`
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-    } catch (error) {
+    } catch (error: unknown) {
+      // Log detailed error for debugging
       console.error('Shopping Assistant error:', error);
+      
+      // Show user-friendly error message
+      const userMessage = typeof error === 'object' && error !== null && 'message' in error
+        ? (error as { message: string }).message
+        : mapApiErrorToUserMessage();
+      
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: `Sorry, I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. Please check your API key and try again.`,
+        content: `Sorry, I encountered an issue. ${userMessage}`,
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);
