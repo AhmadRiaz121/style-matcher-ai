@@ -70,7 +70,9 @@ export function useGeminiApi() {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('Gemini API error details:', errorData);
+        if (import.meta.env.DEV) {
+          console.error('Gemini API error details:', errorData);
+        }
         throw new Error(mapApiErrorToUserMessage(response.status));
       }
 
