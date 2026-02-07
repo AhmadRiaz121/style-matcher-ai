@@ -91,9 +91,7 @@ Be precise and only return valid JSON.`
       });
 
       if (!response.ok) {
-        if (import.meta.env.DEV) {
-          console.error('Image analysis API error:', response.status);
-        }
+        console.error('Image analysis API error:', response.status);
         throw new Error(mapApiErrorToUserMessage(response.status));
       }
       
@@ -122,15 +120,11 @@ Be precise and only return valid JSON.`
           });
         } else {
           // Validation failed but don't show error - user can manually categorize
-          if (import.meta.env.DEV) {
-            console.warn('AI response validation failed');
-          }
+          console.warn('AI response validation failed');
         }
       }
     } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error('Image analysis error:', error);
-      }
+      console.error('Image analysis error:', error);
       // Silently fail - user can still manually categorize
     } finally {
       setIsAnalyzing(false);

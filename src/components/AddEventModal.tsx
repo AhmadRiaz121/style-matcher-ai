@@ -88,9 +88,7 @@ Return ONLY valid JSON, no other text.`
       });
 
       if (!response.ok) {
-        if (import.meta.env.DEV) {
-          console.error('Outfit suggestions API error:', response.status);
-        }
+        console.error('Outfit suggestions API error:', response.status);
         throw new Error(mapApiErrorToUserMessage(response.status));
       }
 
@@ -104,18 +102,14 @@ Return ONLY valid JSON, no other text.`
         if (outfits && outfits.length > 0) {
           setSuggestions(outfits);
         } else {
-          if (import.meta.env.DEV) {
-            console.warn('Outfit suggestions validation failed');
-          }
+          console.warn('Outfit suggestions validation failed');
           setSuggestions([]);
         }
       } else {
         setSuggestions([]);
       }
     } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error('Suggestion generation error:', error);
-      }
+      console.error('Suggestion generation error:', error);
       setSuggestions([]);
     } finally {
       setIsLoadingSuggestions(false);

@@ -126,11 +126,9 @@ User's question: ${userMessage}`
     });
 
     if (!response.ok) {
-      // Log detailed error for debugging in development only
+      // Log detailed error for debugging but throw generic message
       const errorData = await response.json().catch(() => ({}));
-      if (import.meta.env.DEV) {
-        console.error('Gemini API error details:', errorData);
-      }
+      console.error('Gemini API error details:', errorData);
       throw { status: response.status, message: mapApiErrorToUserMessage(response.status) };
     }
 
@@ -202,9 +200,6 @@ User's question: ${userMessage}`
   };
 
   const extractSearchTerms = (text: string): string[] => {
-    // Limit input length to prevent performance issues
-    const truncatedText = text.slice(0, 5000);
-    
     const patterns = [
       /"([^"]+)"/g,
       /search for[:\s]+([^,.\n]+)/gi,
@@ -212,16 +207,13 @@ User's question: ${userMessage}`
     ];
 
     const terms: string[] = [];
-    const MAX_MATCHES = 20;
-    
     patterns.forEach(pattern => {
-      // Use matchAll for safer iteration instead of exec() in a loop
-      const matches = [...truncatedText.matchAll(pattern)];
-      matches.slice(0, MAX_MATCHES).forEach(match => {
-        if (match[1]?.length < 50) {
+      let match;
+      while ((match = pattern.exec(text)) !== null) {
+        if (match[1] && match[1].length < 50) {
           terms.push(match[1].trim());
         }
-      });
+      }
     });
 
     return [...new Set(terms)].slice(0, 3);
