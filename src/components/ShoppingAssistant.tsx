@@ -6,17 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useGeminiApi } from '@/hooks/useGeminiApi';
 import { useWardrobe } from '@/hooks/useWardrobe';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { useToast } from '@/hooks/use-toast';
-import { mapApiErrorToUserMessage } from '@/lib/apiErrorHandler';
 import ReactMarkdown from 'react-markdown';
-import { z } from 'zod';
-
-// Input validation schema
-const chatMessageSchema = z.object({
-  content: z.string()
-    .min(1, 'Message cannot be empty')
-    .max(2000, 'Message too long (max 2000 characters)')
-});
 
 interface Message {
   id: string;
@@ -46,7 +36,6 @@ export function ShoppingAssistant({ onOpenApiSettings }: ShoppingAssistantProps)
   const prevMessageCountRef = useRef(0);
   const { hasApiKey, apiKey } = useGeminiApi();
   const { clothes } = useWardrobe();
-  const { toast } = useToast();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -70,6 +59,8 @@ export function ShoppingAssistant({ onOpenApiSettings }: ShoppingAssistantProps)
       role: msg.role,
       content: msg.content
     }));
+
+    console.log('Calling Gemini API with key:', apiKey ? `${apiKey.substring(0, 10)}...` : 'NO KEY');
 
     const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent', {
       method: 'POST',
@@ -125,28 +116,20 @@ User's question: ${userMessage}`
       }),
     });
 
+    console.log('Gemini API response status:', response.status);
+
     if (!response.ok) {
-      // Log detailed error for debugging but throw generic message
       const errorData = await response.json().catch(() => ({}));
-      console.error('Gemini API error details:', errorData);
-      throw { status: response.status, message: mapApiErrorToUserMessage(response.status) };
+      console.error('Gemini API error:', errorData);
+      throw new Error(errorData.error?.message || `API error: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log('Gemini API response data:', data);
     return data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not generate a response.';
   };
 
   const handleSend = async () => {
-    // Validate input before sending
-    const validation = chatMessageSchema.safeParse({ content: input.trim() });
-    if (!validation.success) {
-      toast({
-        title: "Invalid message",
-        description: validation.error.errors[0].message,
-        variant: "destructive",
-      });
-      return;
-    }
     if (!input.trim() || !hasApiKey) return;
 
     const userMessage: Message = {
@@ -171,19 +154,12 @@ User's question: ${userMessage}`
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-    } catch (error: unknown) {
-      // Log detailed error for debugging
+    } catch (error) {
       console.error('Shopping Assistant error:', error);
-      
-      // Show user-friendly error message
-      const userMessage = typeof error === 'object' && error !== null && 'message' in error
-        ? (error as { message: string }).message
-        : mapApiErrorToUserMessage();
-      
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: `Sorry, I encountered an issue. ${userMessage}`,
+        content: `Sorry, I encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. Please check your API key and try again.`,
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);

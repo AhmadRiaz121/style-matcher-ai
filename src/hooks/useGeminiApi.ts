@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useLocalStorage } from './useLocalStorage';
-import { mapApiErrorToUserMessage } from '@/lib/apiErrorHandler';
+
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent';
 
 export function useGeminiApi() {
@@ -69,9 +69,8 @@ export function useGeminiApi() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Gemini API error details:', errorData);
-        throw new Error(mapApiErrorToUserMessage(response.status));
+        const errorData = await response.json();
+        throw new Error(errorData.error?.message || 'Failed to generate try-on');
       }
 
       const data = await response.json();

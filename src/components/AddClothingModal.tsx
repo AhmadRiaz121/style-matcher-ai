@@ -9,8 +9,6 @@ import { ImageUpload } from './ImageUpload';
 import { ClothingCategory } from '@/types/wardrobe';
 import { useGeminiApi } from '@/hooks/useGeminiApi';
 import { useToast } from '@/hooks/use-toast';
-import { ClothingAnalysisSchema, extractJsonFromResponse, safeJsonParse } from '@/lib/validationSchemas';
-import { mapApiErrorToUserMessage } from '@/lib/apiErrorHandler';
 
 interface AddClothingModalProps {
   isOpen: boolean;
@@ -90,21 +88,16 @@ Be precise and only return valid JSON.`
         }),
       });
 
-      if (!response.ok) {
-        console.error('Image analysis API error:', response.status);
-        throw new Error(mapApiErrorToUserMessage(response.status));
-      }
-      
-      const data = await response.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      if (response.ok) {
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
-      // Extract and validate JSON from response
-      const jsonString = extractJsonFromResponse(text);
-      if (jsonString) {
-        const analysis = safeJsonParse(jsonString, ClothingAnalysisSchema);
-        
-        if (analysis) {
-          if (categories.some(c => c.value === analysis.category)) {
+        // Extract JSON from response
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const analysis = JSON.parse(jsonMatch[0]);
+
+          if (analysis.category && categories.some(c => c.value === analysis.category)) {
             setCategory(analysis.category as ClothingCategory);
           }
           if (analysis.name) {
@@ -118,9 +111,6 @@ Be precise and only return valid JSON.`
             title: "✨ AI Analysis Complete",
             description: "Item categorized automatically!",
           });
-        } else {
-          // Validation failed but don't show error - user can manually categorize
-          console.warn('AI response validation failed');
         }
       }
     } catch (error) {

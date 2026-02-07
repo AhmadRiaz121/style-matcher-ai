@@ -9,8 +9,6 @@ import { Event, ClothingItem } from '@/types/wardrobe';
 import { format } from 'date-fns';
 import { useGeminiApi } from '@/hooks/useGeminiApi';
 import { useWardrobe } from '@/hooks/useWardrobe';
-import { OutfitSuggestionsArraySchema, extractJsonFromResponse, safeJsonParse, OutfitSuggestion } from '@/lib/validationSchemas';
-import { mapApiErrorToUserMessage } from '@/lib/apiErrorHandler';
 
 interface AddEventModalProps {
   isOpen: boolean;
@@ -31,7 +29,7 @@ export function AddEventModal({ isOpen, onClose, onAdd }: AddEventModalProps) {
   const [name, setName] = useState('');
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [type, setType] = useState<Event['type']>('casual');
-  const [suggestions, setSuggestions] = useState<OutfitSuggestion[]>([]);
+  const [suggestions, setSuggestions] = useState<string>('');
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const { apiKey, hasApiKey } = useGeminiApi();
@@ -87,30 +85,22 @@ Return ONLY valid JSON, no other text.`
         }),
       });
 
-      if (!response.ok) {
-        console.error('Outfit suggestions API error:', response.status);
-        throw new Error(mapApiErrorToUserMessage(response.status));
-      }
+      if (response.ok) {
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
-      const data = await response.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
-      // Extract and validate JSON from response
-      const jsonString = extractJsonFromResponse(text);
-      if (jsonString) {
-        const outfits = safeJsonParse(jsonString, OutfitSuggestionsArraySchema);
-        if (outfits && outfits.length > 0) {
-          setSuggestions(outfits);
+        // Extract JSON from response
+        const jsonMatch = text.match(/\[[\s\S]*\]/);
+        if (jsonMatch) {
+          const outfits = JSON.parse(jsonMatch[0]);
+          setSuggestions(JSON.stringify(outfits));
         } else {
-          console.warn('Outfit suggestions validation failed');
-          setSuggestions([]);
+          setSuggestions('');
         }
-      } else {
-        setSuggestions([]);
       }
     } catch (error) {
       console.error('Suggestion generation error:', error);
-      setSuggestions([]);
+      setSuggestions('');
     } finally {
       setIsLoadingSuggestions(false);
     }
@@ -124,9 +114,9 @@ Return ONLY valid JSON, no other text.`
       }, 500);
       return () => clearTimeout(debounceTimer);
     } else {
-      setSuggestions([]);
+      setSuggestions('');
     }
-  }, [type, name, hasApiKey, clothes.length]);
+  }, [type, name]);
 
   const toggleSelection = (clothingId: string) => {
     setSelectedItems(prev =>
@@ -151,7 +141,6 @@ Return ONLY valid JSON, no other text.`
     setDate(format(new Date(), 'yyyy-MM-dd'));
     setType('casual');
     setSelectedItems([]);
-    setSuggestions([]);
     onClose();
   };
 
@@ -242,54 +231,65 @@ Return ONLY valid JSON, no other text.`
                       <Loader2 className="w-5 h-5 animate-spin text-gold" />
                       <span className="ml-2 text-sm text-muted-foreground">Analyzing your wardrobe...</span>
                     </div>
-                  ) : suggestions.length > 0 ? (
+                  ) : suggestions ? (
                     <div className="space-y-4 max-h-96 overflow-y-auto">
-                      {suggestions.map((outfit, idx) => (
-                        <div key={idx} className="p-3 rounded-lg bg-background/50 border border-border/50">
-                          <h4 className="font-medium text-sm mb-2 flex items-center gap-2">
-                            <span className="text-gold">✨</span>
-                            {outfit.name}
-                          </h4>
-                          <div className="flex gap-2 mb-2 overflow-x-auto pb-2">
-                            {outfit.items?.map((itemIdx: number) => {
-                              const item = clothes[itemIdx];
-                              if (!item) return null;
-                              return (
-                                <div
-                                  key={itemIdx}
-                                  className="flex-shrink-0 w-20 cursor-pointer group relative"
-                                  onClick={() => toggleSelection(item.id)}
-                                >
-                                  <div className={`aspect-[3/4] rounded-lg overflow-hidden bg-muted mb-1 border-2 transition-all ${selectedItems.includes(item.id)
-                                      ? 'border-gold shadow-md'
-                                      : 'border-transparent group-hover:border-gold/50'
-                                    }`}>
-                                    <img
-                                      src={item.imageUrl}
-                                      alt={item.name}
-                                      className="w-full h-full object-cover"
-                                    />
-                                    {selectedItems.includes(item.id) && (
-                                      <div className="absolute top-1 right-1 bg-gold rounded-full p-0.5">
-                                        <Check className="w-3 h-3 text-white" />
+                      {(() => {
+                        try {
+                          const outfits = JSON.parse(suggestions);
+                          return outfits.map((outfit: any, idx: number) => (
+                            <div key={idx} className="p-3 rounded-lg bg-background/50 border border-border/50">
+                              <h4 className="font-medium text-sm mb-2 flex items-center gap-2">
+                                <span className="text-gold">✨</span>
+                                {outfit.name}
+                              </h4>
+                              <div className="flex gap-2 mb-2 overflow-x-auto pb-2">
+                                {outfit.items?.map((itemIdx: number) => {
+                                  const item = clothes[itemIdx];
+                                  if (!item) return null;
+                                  return (
+                                    <div
+                                      key={itemIdx}
+                                      className="flex-shrink-0 w-20 cursor-pointer group relative"
+                                      onClick={() => toggleSelection(item.id)}
+                                    >
+                                      <div className={`aspect-[3/4] rounded-lg overflow-hidden bg-muted mb-1 border-2 transition-all ${selectedItems.includes(item.id)
+                                          ? 'border-gold shadow-md'
+                                          : 'border-transparent group-hover:border-gold/50'
+                                        }`}>
+                                        <img
+                                          src={item.imageUrl}
+                                          alt={item.name}
+                                          className="w-full h-full object-cover"
+                                        />
+                                        {selectedItems.includes(item.id) && (
+                                          <div className="absolute top-1 right-1 bg-gold rounded-full p-0.5">
+                                            <Check className="w-3 h-3 text-white" />
+                                          </div>
+                                        )}
                                       </div>
-                                    )}
-                                  </div>
-                                  <p className={`text-xs text-center truncate transition-colors ${selectedItems.includes(item.id) ? 'text-gold font-medium' : 'text-muted-foreground'
-                                    }`}>
-                                    {item.name}
-                                  </p>
-                                </div>
-                              );
-                            })}
-                          </div>
-                          {outfit.tip && (
-                            <p className="text-xs text-muted-foreground italic">
-                              💡 {outfit.tip}
+                                      <p className={`text-xs text-center truncate transition-colors ${selectedItems.includes(item.id) ? 'text-gold font-medium' : 'text-muted-foreground'
+                                        }`}>
+                                        {item.name}
+                                      </p>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                              {outfit.tip && (
+                                <p className="text-xs text-muted-foreground italic">
+                                  💡 {outfit.tip}
+                                </p>
+                              )}
+                            </div>
+                          ));
+                        } catch (e) {
+                          return (
+                            <p className="text-sm text-muted-foreground">
+                              Unable to load suggestions. Please try again.
                             </p>
-                          )}
-                        </div>
-                      ))}
+                          );
+                        }
+                      })()}
                     </div>
                   ) : (
                     <p className="text-sm text-muted-foreground">
