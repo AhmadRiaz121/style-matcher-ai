@@ -45,7 +45,7 @@ export function TryOnPanel({ onOpenApiSettings }: TryOnPanelProps) {
     <div className="space-y-8">
       {/* Header */}
       <div className="text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold/10 text-gold mb-4">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 text-indigo-600 mb-4">
           <Wand2 className="w-4 h-4" />
           <span className="text-sm font-medium">AI Virtual Try-On</span>
         </div>
@@ -59,13 +59,13 @@ export function TryOnPanel({ onOpenApiSettings }: TryOnPanelProps) {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-4 p-4 rounded-xl bg-gold/10 border border-gold/30"
+          className="flex items-center gap-4 p-4 rounded-xl bg-indigo-50 border border-indigo-200"
         >
-          <AlertCircle className="w-5 h-5 text-gold flex-shrink-0" />
+          <AlertCircle className="w-5 h-5 text-indigo-600 flex-shrink-0" />
           <p className="text-sm flex-1">
             Connect your Gemini API key to enable AI-powered virtual try-on
           </p>
-          <Button variant="gold" size="sm" onClick={onOpenApiSettings}>
+          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-soft rounded-2xl" size="sm" onClick={onOpenApiSettings}>
             Setup API Key
           </Button>
         </motion.div>
@@ -75,7 +75,7 @@ export function TryOnPanel({ onOpenApiSettings }: TryOnPanelProps) {
         {/* Profile Photo Section */}
         <div className="space-y-4">
           <h3 className="font-display text-xl font-medium flex items-center gap-2">
-            <User className="w-5 h-5 text-gold" />
+            <User className="w-5 h-5 text-indigo-600" />
             Your Photo
           </h3>
           <ImageUpload
@@ -91,7 +91,7 @@ export function TryOnPanel({ onOpenApiSettings }: TryOnPanelProps) {
         {/* Selected Items Section */}
         <div className="space-y-4">
           <h3 className="font-display text-xl font-medium flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-gold" />
+            <Sparkles className="w-5 h-5 text-indigo-600" />
             Selected Items ({selectedItems.length})
           </h3>
           
@@ -120,9 +120,8 @@ export function TryOnPanel({ onOpenApiSettings }: TryOnPanelProps) {
           )}
 
           <Button
-            variant="gold"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-soft rounded-2xl w-full"
             size="lg"
-            className="w-full"
             onClick={handleTryOn}
             disabled={!hasApiKey || !profile.profileImage || selectedItems.length === 0 || isLoading}
           >
@@ -157,10 +156,10 @@ export function TryOnPanel({ onOpenApiSettings }: TryOnPanelProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="p-6 rounded-2xl bg-gradient-to-br from-gold/5 to-gold/10 border border-gold/20"
+            className="p-6 rounded-3xl bg-gradient-to-br from-indigo-50/50 to-indigo-100/30 border border-indigo-200"
           >
             <h3 className="font-display text-xl font-medium mb-4 flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-gold" />
+              <Sparkles className="w-5 h-5 text-indigo-600" />
               AI Style Analysis
             </h3>
             <div className="prose prose-sm max-w-none text-foreground">

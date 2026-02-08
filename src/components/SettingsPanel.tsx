@@ -41,11 +41,11 @@ export function SettingsPanel({ onOpenApiSettings }: SettingsPanelProps) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="p-6 rounded-2xl bg-card border border-border shadow-soft"
+        className="p-6 rounded-3xl bg-card border border-slate-100 shadow-soft"
       >
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-gradient-gold flex items-center justify-center">
-            <Key className="w-5 h-5 text-charcoal" />
+          <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center">
+            <Key className="w-5 h-5 text-white" />
           </div>
           <div>
             <h3 className="font-display text-lg font-medium">Gemini API Key</h3>
@@ -72,7 +72,7 @@ export function SettingsPanel({ onOpenApiSettings }: SettingsPanelProps) {
           ) : (
             <>
               <span className="text-sm text-muted-foreground">No API key configured</span>
-              <Button variant="gold" size="sm" onClick={onOpenApiSettings} className="ml-auto">
+              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-soft rounded-2xl ml-auto" size="sm" onClick={onOpenApiSettings}>
                 Add API Key
               </Button>
             </>
@@ -85,7 +85,7 @@ export function SettingsPanel({ onOpenApiSettings }: SettingsPanelProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="p-6 rounded-2xl bg-card border border-border shadow-soft"
+        className="p-6 rounded-3xl bg-card border border-slate-100 shadow-soft"
       >
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
@@ -116,22 +116,22 @@ export function SettingsPanel({ onOpenApiSettings }: SettingsPanelProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="p-6 rounded-2xl bg-card border border-border shadow-soft"
+        className="p-6 rounded-3xl bg-card border border-slate-100 shadow-soft"
       >
         <h3 className="font-display text-lg font-medium mb-4">Your Wardrobe Stats</h3>
         <div className="grid grid-cols-3 gap-4 text-center">
           <div className="p-4 rounded-xl bg-muted">
-            <p className="text-2xl font-semibold text-gold">{clothes.length}</p>
+            <p className="text-2xl font-semibold text-indigo-600">{clothes.length}</p>
             <p className="text-sm text-muted-foreground">Total Items</p>
           </div>
           <div className="p-4 rounded-xl bg-muted">
-            <p className="text-2xl font-semibold text-gold">
+            <p className="text-2xl font-semibold text-indigo-600">
               {new Set(clothes.map(c => c.category)).size}
             </p>
             <p className="text-sm text-muted-foreground">Categories</p>
           </div>
           <div className="p-4 rounded-xl bg-muted">
-            <p className="text-2xl font-semibold text-gold">
+            <p className="text-2xl font-semibold text-indigo-600">
               {clothes.reduce((sum, c) => sum + c.wearCount, 0)}
             </p>
             <p className="text-sm text-muted-foreground">Total Wears</p>
@@ -144,7 +144,7 @@ export function SettingsPanel({ onOpenApiSettings }: SettingsPanelProps) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="p-6 rounded-2xl border border-destructive/30 bg-destructive/5"
+        className="p-6 rounded-3xl border border-destructive/30 bg-destructive/5"
       >
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-destructive/20 flex items-center justify-center">

@@ -18,7 +18,7 @@ const eventTypeColors: Record<Event['type'], string> = {
   business: 'bg-gray-100 text-gray-700',
   party: 'bg-pink-100 text-pink-700',
   outdoor: 'bg-green-100 text-green-700',
-  other: 'bg-gold/20 text-gold-dark',
+  other: 'bg-indigo-50 text-indigo-700',
 };
 
 export function EventCard({ event, onDelete, onSelectOutfit, onEdit, selectedOutfits }: EventCardProps) {
@@ -32,11 +32,11 @@ export function EventCard({ event, onDelete, onSelectOutfit, onEdit, selectedOut
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.9 }}
-      className={`p-4 rounded-xl border transition-all ${isPastEvent
+      className={`p-4 rounded-3xl border transition-all ${isPastEvent
         ? 'bg-muted/50 border-border opacity-60'
         : isTodayEvent
-          ? 'bg-gold/5 border-gold/30 shadow-gold'
-          : 'bg-card border-border shadow-soft hover:shadow-card'
+          ? 'bg-indigo-50/50 border-indigo-200 shadow-card'
+          : 'bg-card border-slate-100 shadow-soft hover:shadow-card'
         }`}
     >
       <div className="flex items-start justify-between gap-4">
@@ -65,7 +65,7 @@ export function EventCard({ event, onDelete, onSelectOutfit, onEdit, selectedOut
               {event.type.charAt(0).toUpperCase() + event.type.slice(1)}
             </span>
             {isTodayEvent && (
-              <span className="px-2.5 py-1 rounded-full bg-gold text-charcoal text-xs font-semibold">
+              <span className="px-2.5 py-1 rounded-full bg-indigo-600 text-white text-xs font-semibold">
                 Today!
               </span>
             )}

@@ -70,7 +70,7 @@ const Index = () => {
     : clothes.filter(item => item.category === selectedCategory);
 
   return (
-    <div className="min-h-screen bg-background pb-24 md:pb-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-background to-indigo-50/30 pb-24 md:pb-8">
       <Header />
       <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
 
@@ -92,7 +92,10 @@ const Index = () => {
                     {clothes.length} items in your collection
                   </p>
                 </div>
-                <Button variant="gold" onClick={() => setShowAddClothing(true)}>
+                <Button 
+                  onClick={() => setShowAddClothing(true)}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-soft rounded-2xl"
+                >
                   <Plus className="w-5 h-5" />
                   Add Item
                 </Button>
@@ -109,14 +112,17 @@ const Index = () => {
                   animate={{ opacity: 1 }}
                   className="text-center py-16"
                 >
-                  <div className="w-20 h-20 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
-                    <Plus className="w-8 h-8 text-muted-foreground" />
+                  <div className="w-20 h-20 rounded-full bg-indigo-50 mx-auto mb-4 flex items-center justify-center">
+                    <Plus className="w-8 h-8 text-indigo-600" />
                   </div>
                   <h3 className="font-display text-xl font-medium mb-2">No items yet</h3>
                   <p className="text-muted-foreground mb-4">
                     Start building your digital wardrobe
                   </p>
-                  <Button variant="gold" onClick={() => setShowAddClothing(true)}>
+                  <Button 
+                    onClick={() => setShowAddClothing(true)}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-soft rounded-2xl"
+                  >
                     Add Your First Item
                   </Button>
                 </motion.div>
@@ -175,7 +181,7 @@ const Index = () => {
                     Plan your outfits ahead of time
                   </p>
                 </div>
-                <Button variant="gold" onClick={() => setShowAddEvent(true)}>
+                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-soft rounded-2xl px-6" onClick={() => setShowAddEvent(true)}>
                   <Plus className="w-5 h-5" />
                   Add Event
                 </Button>
@@ -187,14 +193,14 @@ const Index = () => {
                   animate={{ opacity: 1 }}
                   className="text-center py-16"
                 >
-                  <div className="w-20 h-20 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
-                    <Plus className="w-8 h-8 text-muted-foreground" />
+                  <div className="w-20 h-20 rounded-full bg-indigo-50 mx-auto mb-4 flex items-center justify-center">
+                    <Plus className="w-8 h-8 text-indigo-600" />
                   </div>
                   <h3 className="font-display text-xl font-medium mb-2">No events planned</h3>
                   <p className="text-muted-foreground mb-4">
                     Add an event to start planning your outfits
                   </p>
-                  <Button variant="gold" onClick={() => setShowAddEvent(true)}>
+                  <Button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-soft rounded-2xl px-6" onClick={() => setShowAddEvent(true)}>
                     Add Your First Event
                   </Button>
                 </motion.div>

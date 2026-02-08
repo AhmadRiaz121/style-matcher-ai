@@ -184,8 +184,8 @@ User's question: ${userMessage}`
     return (
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
-          <div className="w-20 h-20 rounded-full bg-gradient-gold mx-auto mb-4 flex items-center justify-center">
-            <ShoppingBag className="w-10 h-10 text-charcoal" />
+          <div className="w-20 h-20 rounded-full bg-indigo-600 mx-auto mb-4 flex items-center justify-center">
+            <ShoppingBag className="w-10 h-10 text-white" />
           </div>
           <h2 className="font-display text-3xl font-semibold mb-2">Shopping Assistant</h2>
           <p className="text-muted-foreground">
@@ -196,14 +196,14 @@ User's question: ${userMessage}`
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-8 rounded-2xl bg-card border border-border shadow-soft text-center"
+          className="p-8 rounded-3xl bg-card border border-slate-100 shadow-soft text-center"
         >
-          <Key className="w-12 h-12 text-gold mx-auto mb-4" />
+          <Key className="w-12 h-12 text-indigo-600 mx-auto mb-4" />
           <h3 className="font-display text-xl font-medium mb-2">API Key Required</h3>
           <p className="text-muted-foreground mb-6">
             Add your Gemini API key to start chatting with your personal shopping assistant.
           </p>
-          <Button variant="gold" onClick={onOpenApiSettings}>
+          <Button className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-soft rounded-2xl px-6" onClick={onOpenApiSettings}>
             <Key className="w-4 h-4" />
             Add API Key
           </Button>
@@ -252,12 +252,12 @@ User's question: ${userMessage}`
       </div>
 
       {/* Chat Container */}
-      <div className="bg-card rounded-2xl border border-border shadow-soft overflow-hidden">
+      <div className="bg-card rounded-3xl border border-slate-100 shadow-soft overflow-hidden">
         {/* Messages */}
         <div className="h-[400px] overflow-y-auto p-4 space-y-4">
           {messages.length === 0 && (
             <div className="h-full flex flex-col items-center justify-center text-center p-6">
-              <Sparkles className="w-12 h-12 text-gold mb-4" />
+              <Sparkles className="w-12 h-12 text-indigo-600 mb-4" />
               <h3 className="font-display text-lg font-medium mb-2">Start a Conversation</h3>
               <p className="text-muted-foreground text-sm mb-4">
                 Ask me anything about fashion! Try:
@@ -271,7 +271,7 @@ User's question: ${userMessage}`
                   <button
                     key={suggestion}
                     onClick={() => setInput(suggestion)}
-                    className="px-3 py-1.5 rounded-full bg-muted hover:bg-gold/20 text-sm transition-colors"
+                    className="px-3 py-1.5 rounded-full bg-muted hover:bg-indigo-50 text-sm transition-colors"
                   >
                     {suggestion}
                   </button>
@@ -289,13 +289,13 @@ User's question: ${userMessage}`
                 className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {message.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-full bg-gradient-gold flex items-center justify-center flex-shrink-0">
-                    <Bot className="w-4 h-4 text-charcoal" />
+                  <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0">
+                    <Bot className="w-4 h-4 text-white" />
                   </div>
                 )}
                 <div
                   className={`max-w-[80%] rounded-2xl px-4 py-3 ${message.role === 'user'
-                    ? 'bg-gold text-charcoal'
+                    ? 'bg-indigo-600 text-white'
                     : 'bg-muted'
                     }`}
                 >
@@ -345,8 +345,8 @@ User's question: ${userMessage}`
               animate={{ opacity: 1 }}
               className="flex gap-3"
             >
-              <div className="w-8 h-8 rounded-full bg-gradient-gold flex items-center justify-center">
-                <Bot className="w-4 h-4 text-charcoal" />
+              <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center">
+                <Bot className="w-4 h-4 text-white" />
               </div>
               <div className="bg-muted rounded-2xl px-4 py-3">
                 <div className="flex gap-1">
@@ -373,11 +373,10 @@ User's question: ${userMessage}`
               rows={1}
             />
             <Button
-              variant="gold"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-soft h-11 w-11 flex-shrink-0"
               size="icon"
               onClick={handleSend}
               disabled={!input.trim() || isTyping}
-              className="h-11 w-11 flex-shrink-0"
             >
               <Send className="w-5 h-5" />
             </Button>

@@ -18,7 +18,7 @@ const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
 
 export function Navigation({ activeTab, onTabChange }: NavigationProps) {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card/80 backdrop-blur-lg border-t border-border safe-area-pb md:relative md:bottom-auto md:border-t-0 md:border-b md:bg-transparent md:backdrop-blur-none">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 glass-panel border-t border-border safe-area-pb md:relative md:bottom-auto md:border-t-0 md:border-b">
       <div className="container mx-auto px-4">
         <div className="flex justify-around md:justify-center md:gap-8">
           {tabs.map((tab) => (
@@ -27,7 +27,7 @@ export function Navigation({ activeTab, onTabChange }: NavigationProps) {
               onClick={() => onTabChange(tab.id)}
               className="relative flex flex-col items-center gap-1 py-3 px-4 text-sm transition-colors md:flex-row md:gap-2 md:py-4"
             >
-              <span className={activeTab === tab.id ? 'text-gold' : 'text-muted-foreground'}>
+              <span className={activeTab === tab.id ? 'text-indigo-600' : 'text-muted-foreground'}>
                 {tab.icon}
               </span>
               <span className={`font-medium ${activeTab === tab.id ? 'text-foreground' : 'text-muted-foreground'}`}>
@@ -36,7 +36,7 @@ export function Navigation({ activeTab, onTabChange }: NavigationProps) {
               {activeTab === tab.id && (
                 <motion.div
                   layoutId="activeTab"
-                  className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-gold rounded-full md:bottom-2"
+                  className="absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-indigo-600 rounded-full md:bottom-2"
                 />
               )}
             </button>

@@ -32,9 +32,9 @@ export function ClothingCard({
       exit={{ opacity: 0, scale: 0.9 }}
       whileHover={{ y: -4 }}
       onClick={() => onSelect?.(item)}
-      className={`relative group rounded-xl overflow-hidden cursor-pointer transition-all ${
+      className={`relative group rounded-3xl overflow-hidden cursor-pointer transition-all border border-slate-100 bg-white ${
         isSelected 
-          ? 'ring-2 ring-gold ring-offset-2 ring-offset-background' 
+          ? 'ring-2 ring-indigo-600 ring-offset-2 ring-offset-background shadow-elevated' 
           : 'shadow-soft hover:shadow-card'
       }`}
     >
@@ -50,21 +50,21 @@ export function ClothingCard({
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gold flex items-center justify-center"
+          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center shadow-soft"
         >
-          <Check className="w-5 h-5 text-charcoal" />
+          <Check className="w-5 h-5 text-white" />
         </motion.div>
       )}
 
       {isRecommended && !isSelected && (
         <div className="absolute top-3 left-3">
-          <span className="px-2.5 py-1 rounded-full bg-gold/90 text-charcoal text-xs font-semibold backdrop-blur-sm">
+          <span className="px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold backdrop-blur-sm border border-indigo-100">
             Recommended
           </span>
         </div>
       )}
 
-      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-charcoal via-charcoal/80 to-transparent p-4 pt-12">
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent p-4 pt-12">
         <h3 className="font-medium text-white truncate">{item.name}</h3>
         <div className="flex items-center gap-2 mt-1 text-white/70 text-sm">
           <Calendar className="w-3.5 h-3.5" />

@@ -154,7 +154,7 @@ Be precise and only return valid JSON.`,
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
           >
-            <div className="bg-card rounded-2xl shadow-elevated p-6 border border-border w-full max-w-lg max-h-[85vh] overflow-y-auto">
+            <div className="bg-card rounded-3xl shadow-elevated p-6 border border-slate-100 w-full max-w-lg max-h-[85vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="font-display text-2xl font-semibold">Add to Wardrobe</h2>
                 <button
@@ -191,13 +191,13 @@ Be precise and only return valid JSON.`,
                     <Label htmlFor="category" className="flex items-center gap-2">
                       Category
                       {isAnalyzing && (
-                        <span className="flex items-center gap-1 text-xs text-gold">
+                        <span className="flex items-center gap-1 text-xs text-indigo-600">
                           <Loader2 className="w-3 h-3 animate-spin" />
                           AI analyzing...
                         </span>
                       )}
                       {!isAnalyzing && imageUrl && hasApiKey && (
-                        <span className="flex items-center gap-1 text-xs text-gold">
+                        <span className="flex items-center gap-1 text-xs text-indigo-600">
                           <Sparkles className="w-3 h-3" />
                           AI suggested
                         </span>
@@ -251,10 +251,9 @@ Be precise and only return valid JSON.`,
                   Cancel
                 </Button>
                 <Button
-                  variant="gold"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-soft rounded-2xl flex-1"
                   onClick={handleSubmit}
                   disabled={!name.trim() || !imageUrl}
-                  className="flex-1"
                 >
                   <Plus className="w-4 h-4 mr-1" />
                   Add Item
