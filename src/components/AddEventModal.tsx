@@ -47,16 +47,16 @@ export function AddEventModal({ isOpen, onClose, onAdd }: AddEventModalProps) {
         `${idx}: ${c.name} (${c.category}${c.color ? `, ${c.color}` : ''})`
       ).join('\n');
 
-      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent', {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+      const response = await fetch(`${API_BASE_URL}/api/gemini/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey,
         },
         body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `You are a fashion stylist AI. The user is planning for a "${eventName}" event (type: ${eventType}).
+          model: 'gemini-flash-lite-latest',
+          prompt: `You are a fashion stylist AI. The user is planning for a "${eventName}" event (type: ${eventType}).
 
 Here is their current wardrobe with item numbers:
 ${wardrobeList}
@@ -74,14 +74,6 @@ IMPORTANT: Return ONLY a JSON array in this exact format:
 
 The "items" array should contain the item numbers from the wardrobe list above. Only use numbers that exist in the list.
 Return ONLY valid JSON, no other text.`
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.4,
-            topK: 20,
-            topP: 0.8,
-            maxOutputTokens: 512,
-          }
         }),
       });
 

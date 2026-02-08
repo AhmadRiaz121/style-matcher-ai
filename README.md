@@ -32,9 +32,25 @@ cd <YOUR_PROJECT_NAME>
 # Step 3: Install the necessary dependencies.
 npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Set up the backend server (REQUIRED for API key security)
+# Copy environment file and add your Gemini API key
+cp .env.example .env
+# Edit .env and add: GEMINI_API_KEY=your_key_here
+
+# Step 5: Start the backend server (in one terminal)
+npm run server
+
+# Step 6: Start the frontend dev server (in another terminal)
 npm run dev
 ```
+
+**📘 See [BACKEND_SETUP.md](BACKEND_SETUP.md) for detailed backend configuration.**
+
+## 🔐 Security Notice
+
+This project uses a **secure backend server** to protect your Gemini API key. The API key is stored server-side in a `.env` file (git-ignored) and never exposed to the client browser. 
+
+Previous versions stored the API key in browser localStorage - this has been removed for security.
 
 **Edit a file directly in GitHub**
 

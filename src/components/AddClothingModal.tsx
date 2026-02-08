@@ -52,39 +52,27 @@ export function AddClothingModal({ isOpen, onClose, onAdd }: AddClothingModalPro
     try {
       const base64Image = imageData.split(',')[1] || imageData;
 
-      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent', {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+      const response = await fetch(`${API_BASE_URL}/api/gemini/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey,
         },
         body: JSON.stringify({
-          contents: [{
-            parts: [
-              {
-                text: `Analyze this clothing item image and provide the following information in JSON format:
+          model: 'gemini-flash-lite-latest',
+          prompt: `Analyze this clothing item and provide the following information in a structured format:
 {
   "category": "one of: tops, bottoms, suits, dresses, outerwear, shoes, accessories",
   "name": "a descriptive name for this item",
   "color": "primary color of the item"
 }
 
-Be precise and only return valid JSON.`
-              },
-              {
-                inline_data: {
-                  mime_type: 'image/jpeg',
-                  data: base64Image
-                }
-              }
-            ]
-          }],
-          generationConfig: {
-            temperature: 0.3,
-            topK: 20,
-            topP: 0.8,
-            maxOutputTokens: 256,
-          }
+Be precise and only return valid JSON.`,
+          images: [{
+            data: base64Image,
+            mimeType: 'image/jpeg'
+          }]
         }),
       });
 

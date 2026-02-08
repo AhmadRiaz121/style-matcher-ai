@@ -60,26 +60,20 @@ export function ShoppingAssistant({ onOpenApiSettings }: ShoppingAssistantProps)
       content: msg.content
     }));
 
-    console.log('Calling Gemini API with key:', apiKey ? `${apiKey.substring(0, 10)}...` : 'NO KEY');
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent', {
+    const response = await fetch(`${API_BASE_URL}/api/gemini/generate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-goog-api-key': apiKey,
       },
       body: JSON.stringify({
-        contents: [
-          // Include conversation history
-          ...conversationHistory.map(msg => ({
-            role: msg.role === 'user' ? 'user' : 'model',
-            parts: [{ text: msg.content }]
-          })),
-          // Current message with full context
-          {
-            role: 'user',
-            parts: [{
-              text: `You are StyleAI Shopping Assistant, a fashion-savvy AI that helps users find trendy clothing and accessories. You specialize in:
+        model: 'gemini-flash-lite-latest',
+        prompt: `Previous conversation:
+${conversationHistory.map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`).join('\n\n')}
+
+Current message:
+You are StyleAI Shopping Assistant, a fashion-savvy AI that helps users find trendy clothing and accessories. You specialize in:
             
 1. Recommending current fashion trends
 2. Suggesting products that match user's style and existing wardrobe
@@ -104,15 +98,6 @@ If the user provides a website URL, analyze it and suggest the best items that w
 Format your responses with clear sections and use emojis to make it engaging.
 
 User's question: ${userMessage}`
-            }]
-          }
-        ],
-        generationConfig: {
-          temperature: 0.8,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 1024,
-        }
       }),
     });
 
