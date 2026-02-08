@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion';
-import { Key, User, Trash2, CheckCircle } from 'lucide-react';
+import { Key, User, Trash2, CheckCircle, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useGeminiApi } from '@/hooks/useGeminiApi';
 import { useWardrobe } from '@/hooks/useWardrobe';
+import { getSampleClothingWithIds, sampleProfile } from '@/utils/sampleData';
+import { useToast } from '@/hooks/use-toast';
 
 interface SettingsPanelProps {
   onOpenApiSettings: () => void;
@@ -13,11 +15,34 @@ interface SettingsPanelProps {
 export function SettingsPanel({ onOpenApiSettings }: SettingsPanelProps) {
   const { hasApiKey, setApiKey } = useGeminiApi();
   const { profile, setProfile, clothes } = useWardrobe();
+  const { toast } = useToast();
 
   const handleClearApiKey = () => {
     if (confirm('Are you sure you want to remove your API key?')) {
       setApiKey('');
     }
+  };
+
+  const handleLoadSampleData = () => {
+    if (clothes.length > 0) {
+      if (!confirm('This will add sample clothing items to your wardrobe. Continue?')) {
+        return;
+      }
+    }
+
+    const sampleClothes = getSampleClothingWithIds();
+    const existingClothes = localStorage.getItem('wardrobe-clothes');
+    const currentClothes = existingClothes ? JSON.parse(existingClothes) : [];
+    
+    localStorage.setItem('wardrobe-clothes', JSON.stringify([...currentClothes, ...sampleClothes]));
+    localStorage.setItem('wardrobe-profile', JSON.stringify(sampleProfile));
+    
+    toast({
+      title: "✨ Sample Data Loaded!",
+      description: `Added ${sampleClothes.length} South Asian clothing items and a profile image.`,
+    });
+    
+    setTimeout(() => window.location.reload(), 1000);
   };
 
   const handleClearWardrobe = () => {
@@ -109,6 +134,37 @@ export function SettingsPanel({ onOpenApiSettings }: SettingsPanelProps) {
             />
           </div>
         </div>
+      </motion.div>
+
+      {/* Sample Data Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15 }}
+        className="p-6 rounded-3xl bg-gradient-to-br from-indigo-50/50 to-indigo-100/30 border border-indigo-200"
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center">
+            <Download className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <h3 className="font-display text-lg font-medium">Sample Data</h3>
+            <p className="text-sm text-muted-foreground">Try the app with pre-loaded clothing</p>
+          </div>
+        </div>
+
+        <p className="text-sm text-muted-foreground mb-4">
+          Load sample South Asian clothing items (Shalwar Kameez, Anarkali, Dupatta, etc.) 
+          and a profile photo to test the virtual try-on features.
+        </p>
+        
+        <Button 
+          className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-soft rounded-2xl w-full"
+          onClick={handleLoadSampleData}
+        >
+          <Download className="w-4 h-4 mr-2" />
+          Load Sample Wardrobe
+        </Button>
       </motion.div>
 
       {/* Stats Section */}
