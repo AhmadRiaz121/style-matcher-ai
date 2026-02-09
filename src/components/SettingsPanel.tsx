@@ -18,9 +18,7 @@ export function SettingsPanel({ onOpenApiSettings }: SettingsPanelProps) {
   const { toast } = useToast();
 
   const handleClearApiKey = () => {
-    if (confirm('Are you sure you want to remove your API key?')) {
-      setApiKey('');
-    }
+    alert('API keys are now managed server-side in the .env file. Please edit the .env file to update or remove your key.');
   };
 
   const handleLoadSampleData = () => {

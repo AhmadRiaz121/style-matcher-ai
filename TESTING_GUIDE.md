@@ -8,7 +8,7 @@
 2. Replace `your_actual_api_key_here` with your Gemini API key:
    ```
    PORT=3001
-   GEMINI_API_KEY=AIzaSy...your_actual_key_here
+   GEMINI_API_KEY=...your_actual_key_here
    ```
 3. Restart the backend server:
    - Open a new terminal
