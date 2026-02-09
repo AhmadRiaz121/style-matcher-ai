@@ -75,7 +75,7 @@ export const sampleClothingItems: Omit<ClothingItem, 'id'>[] = [
   {
     name: 'Peach Anarkali Dress',
     category: 'dresses',
-    imageUrl: 'https://images.unsplash.com/photo-1583391733981-e8c2e6b0f6e3?w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1610030469984-3f5a1c6f4e0a?w=800&q=80',
     color: 'Peach',
     lastWorn: undefined,
     wearCount: 0,
@@ -85,7 +85,7 @@ export const sampleClothingItems: Omit<ClothingItem, 'id'>[] = [
   {
     name: 'Red Bridal Lehenga',
     category: 'dresses',
-    imageUrl: 'https://images.unsplash.com/photo-1610030469667-7e1c88283e6e?w=800&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1583391733985-7b23c25a3c41?w=800&q=80',
     color: 'Red',
     lastWorn: undefined,
     wearCount: 0,
@@ -126,7 +126,7 @@ export const sampleClothingItems: Omit<ClothingItem, 'id'>[] = [
 
 // Sample profile with South Asian woman image
 export const sampleProfile: UserProfile = {
-  profileImage: 'https://images.unsplash.com/photo-1616683693504-3b9c563564c0?w=800&q=80',
+  profileImage: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80',
   name: 'Aisha',
 };
 
